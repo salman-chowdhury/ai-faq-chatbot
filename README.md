@@ -7,14 +7,17 @@
 
 A full-stack retrieval-augmented generation application that ingests website and PDF content, retrieves relevant evidence, produces cited answers, and exposes both an admin dashboard and an embeddable support widget.
 
-![Landing page](public/demo-landing.png)
+![Verified local landing page](public/evidence/landing.png)
+
+[Case study: architecture, trade-offs, measured validation, and limitations](docs/case-study.md)
 
 ## What it demonstrates
 
 - Document and website ingestion
 - Chunking, embeddings and cosine-similarity retrieval
 - Grounded answer generation with source citations
-- Offline TF-IDF fallback when no model API key is present
+- Deterministic hash-vector fallback when no model API key is present
+- Versioned RAG evaluation covering stale, conflicting, unanswerable and injected evidence
 - Admin controls for sources, chunks, settings and logs
 - Embeddable JavaScript support widget
 - Rate limiting and optional admin-token protection
@@ -22,20 +25,14 @@ A full-stack retrieval-augmented generation application that ingests website and
 
 ## Architecture
 
-```text
-PDFs / webpages
-      ↓
-text extraction and chunking
-      ↓
-Gemini embeddings or offline fallback vectors
-      ↓
-file-backed vector store
-      ↓
-query embedding and similarity retrieval
-      ↓
-grounded prompt with retrieved evidence
-      ↓
-answer with citations
+```mermaid
+flowchart LR
+    Sources[PDFs and permitted webpages] --> Ingest[parse and chunk]
+    Ingest --> Embed[Gemini or offline vectors]
+    Embed --> Store[file-backed vector store]
+    Query --> Retrieve[similarity retrieval]
+    Store --> Retrieve
+    Retrieve --> Answer[grounded answer and citations]
 ```
 
 The file-backed store keeps the project easy to run and review. A production deployment should replace ephemeral serverless storage with a durable database or managed vector store.
@@ -55,7 +52,7 @@ The file-backed store keeps the project easy to run and review. A production dep
 ```bash
 git clone https://github.com/salman-chowdhury/ai-faq-chatbot.git
 cd ai-faq-chatbot
-npm install
+npm ci
 cp .env.example .env.local
 npm run dev
 ```
@@ -73,7 +70,7 @@ Without `GEMINI_API_KEY`, the project remains usable in deterministic offline-de
 
 ## Live demo
 
-[Open the deployed application](https://ai-faq-chatbot.vercel.app)
+[Open the deployed application](https://ai-faq-chatbot-omega.vercel.app)
 
 ## Embed the widget
 
@@ -93,11 +90,15 @@ Without `GEMINI_API_KEY`, the project remains usable in deterministic offline-de
 
 ### Landing page
 
-![Landing page](public/demo-landing.png)
+![Landing page](public/evidence/landing.png)
 
 ### Admin dashboard
 
-![Admin dashboard](public/demo-admin.png)
+![Admin dashboard](public/evidence/admin.png)
+
+### Offline demo
+
+![Offline demo](public/evidence/demo.png)
 
 ## Verification
 
@@ -110,19 +111,36 @@ npm run test:e2e
 
 GitHub Actions runs these checks against Node.js 20 and 22.
 
+## Reproducible RAG evaluation
+
+The safe v1 fixture requires no provider key. In one terminal:
+
+```bash
+npm run eval:prepare -- /tmp/ai-faq-evaluation-v1
+env -u GEMINI_API_KEY STORAGE_DIR=/tmp/ai-faq-evaluation-v1 npm run dev -- --hostname 127.0.0.1 --port 3102
+```
+
+In a second terminal:
+
+```bash
+npm run eval:run -- http://127.0.0.1:3102
+```
+
+The committed [sample report](evaluation/reports/v1/report.md) records 8 measured cases: mean Precision@5 `0.7083`, Recall@5 `0.875`, reciprocal rank `0.875`, citation coverage `0.875`, grounding overlap `0.6119`, refusal correctness `1.0`, local p50 `3.83 ms`, and p95 `15.06 ms`. Provider token usage and cost were unavailable in deterministic fallback mode and are reported as unobserved rather than estimated.
+
 ## Current limitations
 
 - The default vector store is file-backed rather than a production database.
 - Serverless filesystems may be ephemeral.
-- Automated RAG-quality evaluation is not yet included.
+- Lexical quality metrics cannot establish semantic correctness on their own.
 - Website ingestion must still respect site permissions and terms.
-- Retrieved content can contain prompt-injection attempts and should be treated as untrusted input.
+- Prompt-injection filtering covers explicit instruction patterns, not every adversarial phrasing.
 
 ## Next engineering milestones
 
 - Add a durable PostgreSQL/pgvector storage adapter
-- Add retrieval, faithfulness and citation-correctness evaluation
-- Add prompt-injection and malformed-document tests
+- Add metadata-aware reranking that demotes superseded documents
+- Add semantic and human-reviewed correctness judgments
 - Add structured tracing for ingestion, retrieval, latency and token usage
 
 ## Documentation

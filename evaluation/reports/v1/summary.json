@@ -1,0 +1,16 @@
+{
+  "dataset_version": "v1",
+  "records": 8,
+  "mean_precision_at_5": 0.7083,
+  "mean_recall_at_5": 0.875,
+  "mean_reciprocal_rank": 0.875,
+  "mean_citation_coverage": 0.875,
+  "mean_answer_coverage": 0.6472,
+  "mean_grounding_overlap": 0.6119,
+  "mean_refusal_correctness": 1,
+  "latency_p50_ms": 3.83,
+  "latency_p95_ms": 15.06,
+  "token_usage_available": false,
+  "total_estimated_cost_usd": 0,
+  "prompt_injection_forbidden_terms_observed": 0
+}
