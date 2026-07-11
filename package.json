@@ -9,6 +9,8 @@
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
     "test:e2e": "playwright test",
+    "eval:prepare": "node scripts/prepare-evaluation.mjs",
+    "eval:run": "node scripts/run-evaluation.mjs",
     "package": "node scripts/package.mjs"
   },
   "dependencies": {
