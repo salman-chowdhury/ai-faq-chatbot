@@ -1,6 +1,6 @@
 # AI FAQ Chatbot
 
-[![CI](https://github.com/salman-uq2024/ai-faq-chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/salman-uq2024/ai-faq-chatbot/actions/workflows/ci.yml)
+[![CI](https://github.com/salman-chowdhury/ai-faq-chatbot/actions/workflows/ci.yml/badge.svg)](https://github.com/salman-chowdhury/ai-faq-chatbot/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript)](https://www.typescriptlang.org)
@@ -53,7 +53,7 @@ The file-backed store keeps the project easy to run and review. A production dep
 ## Quick start
 
 ```bash
-git clone https://github.com/salman-uq2024/ai-faq-chatbot.git
+git clone https://github.com/salman-chowdhury/ai-faq-chatbot.git
 cd ai-faq-chatbot
 npm install
 cp .env.example .env.local
